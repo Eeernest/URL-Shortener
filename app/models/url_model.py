@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, DateTime, func
 from app.db.url_db import Base
 
 class Url(Base):
-  __tablename__ = "urls"
+  __tablename__ = "url"
 
   id = Column(Integer, primary_key=True)
   long_url = Column(String, nullable=False, index=True)

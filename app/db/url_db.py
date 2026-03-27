@@ -23,7 +23,7 @@ class Base(DeclarativeBase):
   pass
 
 def create_db_and_table():
-  Base.metadata.create_all(binf=engine)
+  Base.metadata.create_all(bind=engine)
 
 def get_session():
   db = SessionLocal()
