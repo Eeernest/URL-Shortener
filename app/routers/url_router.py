@@ -7,7 +7,7 @@ router = APIRouter()
 
 @router.post("/shorten", response_model=ShortUrlResponse)
 def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
-  data = service.create_short_code(url)
-  short_url = service.create_short_url(str(request.base_url), data.short_code)
+  url_obj = service.get_or_create(url)
+  short_url = service.create_short_url(str(request.base_url), url_obj.short_code)
 
   return ShortUrlResponse(short_url=short_url)

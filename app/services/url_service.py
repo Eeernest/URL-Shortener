@@ -13,18 +13,25 @@ class UrlService:
     characters = string.digits + string.ascii_letters
 
     while True:
-      new_code = "".join(secrets.choice(characters) for char in range(length))
+      new_code = "".join(secrets.choice(characters) for _ in range(length))
 
       if self.db_repo.get_short_code(new_code) is None:
         return new_code
       
-  def create_short_code(self, url: UrlCreate) -> Url:
-    short_code = Url(
+  def get_or_create(self, url: UrlCreate) -> Url:
+    existing_long_url = self.db_repo.get_long_url(str(url.long_url))
+
+    if existing_long_url is not None:
+      return existing_long_url
+    
+    new_short_code = Url(
       long_url=str(url.long_url),
-      short_code= str(self._generate_short_code())
+      short_code=self._generate_short_code()
     )
 
-    return self.db_repo.save(short_code)
+    return self.db_repo.save(new_short_code)
+
+    
   
   def create_short_url(self, base_url: str, short_code: str) -> str:
     return f"{base_url.rstrip('/')}/{short_code}"
