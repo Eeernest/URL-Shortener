@@ -1,15 +1,19 @@
 from app.models.url_model import Url
 from app.schemas.url_schema import UrlCreate
 from app.repositories.url_db_repository import UrlDbRepository
+from app.repositories.url_cache_repository import UrlCacheRepository
 
 from sqlalchemy.exc import IntegrityError
 
 import string
 import secrets
 
+from fastapi.exceptions import HTTPException
+
 class UrlService:
-  def __init__(self, db_repo: UrlDbRepository):
+  def __init__(self, db_repo: UrlDbRepository, cache_repo: UrlCacheRepository):
     self.db_repo = db_repo
+    self.cache_repo = cache_repo
 
   def _generate_short_code(self, length=6) -> str:
     characters = string.digits + string.ascii_letters
@@ -23,7 +27,7 @@ class UrlService:
     
     for _ in range(retries):
       short_code = self._generate_short_code()
-      url_obj = Url(long_url=url.long_url, short_code=short_code)
+      url_obj = Url(long_url=str(url.long_url), short_code=short_code)
 
       try:
         return self.db_repo.save(url_obj)
@@ -35,3 +39,18 @@ class UrlService:
 
   def create_short_url(self, base_url: str, short_code: str) -> str:
     return f"{base_url.rstrip('/')}/{short_code}"
+  
+  def redirect(self, short_code: str) -> Url:
+    url_obj = self.cache_repo.get_by_short_code(short_code)
+
+    if url_obj is None:
+      url_obj = self.db_repo.get_by_short_code(short_code)
+
+      if url_obj is None:
+        raise HTTPException(status_code=404, detail="Short code not found")
+      
+      self.cache_repo.set_url_obj(url_obj)
+    
+    self.cache_repo.increase_click_count(short_code)
+
+    return url_obj.long_url
