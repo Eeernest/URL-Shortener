@@ -16,7 +16,7 @@ class UrlService:
     return "".join(secrets.choice(characters) for _ in range(length))
       
   def get_or_create(self, url: UrlCreate, retries=5) -> Url:
-    existing_long_url = self.db_repo.get_long_url(str(url.long_url))
+    existing_long_url = self.db_repo.get_by_long_url(str(url.long_url))
 
     if existing_long_url is not None:
       return existing_long_url

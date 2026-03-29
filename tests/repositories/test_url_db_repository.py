@@ -2,7 +2,7 @@ from tests.db.url_db import db_session
 from tests.fixtures.url_fixture import url_db_repo, create_url_obj, saved_url_obj
 
 def test_get_long_url(url_db_repo, saved_url_obj):
-  result = url_db_repo.get_long_url(saved_url_obj.long_url)
+  result = url_db_repo.get_by_long_url(saved_url_obj.long_url)
 
   assert result.id is not None
   assert result.long_url == saved_url_obj.long_url
