@@ -2,7 +2,7 @@ import pytest
 
 from sqlalchemy.exc import IntegrityError
 
-from tests.fixtures.url_fixture import mock_db_repo, mock_cache_repo, mock_url_obj, create_url_obj, mock_base_url, url_service
+from tests.fixtures.url_db_fixture import mock_db_repo, mock_cache_repo, mock_url_obj, create_url_obj, mock_base_url, url_service
 
 def test_get_or_create_get_success(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = mock_url_obj
