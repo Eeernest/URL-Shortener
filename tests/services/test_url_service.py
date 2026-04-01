@@ -5,18 +5,18 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
 
-from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_base_url, mock_db_repo, mock_cache_repo, url_service
+from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_db_repo, mock_cache_repo, url_service
 
 def test_get_or_create_get_success(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = mock_url_obj
 
   result = url_service.get_or_create(create_url_obj)
 
-  assert result.id is not None
+  assert result.id == mock_url_obj.id
   assert result.long_url == mock_url_obj.long_url
   assert result.short_code == mock_url_obj.short_code
-  assert mock_db_repo.get_by_long_url.assert_called_once
-  assert mock_db_repo.save.assert_not_called
+  assert mock_db_repo.get_by_long_url.call_count == 1
+  assert mock_db_repo.save.call_count == 0
 
 def test_get_or_create_create_success(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = None
@@ -24,11 +24,11 @@ def test_get_or_create_create_success(mock_db_repo, mock_url_obj, create_url_obj
 
   result = url_service.get_or_create(create_url_obj)
 
-  assert result.id is not None
+  assert result.id == mock_url_obj.id
   assert result.long_url == mock_url_obj.long_url
   assert result.short_code == mock_url_obj.short_code
-  assert mock_db_repo.get_by_long_url.assert_called_once
-  assert mock_db_repo.save.assert_called_once
+  assert mock_db_repo.get_by_long_url.call_count == 1
+  assert mock_db_repo.save.call_count == 1
 
 def test_get_or_create_race_condition(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = None
@@ -36,9 +36,11 @@ def test_get_or_create_race_condition(mock_db_repo, mock_url_obj, create_url_obj
 
   result = url_service.get_or_create(create_url_obj)
 
-  assert result.id is not None
-  assert mock_db_repo.get_by_long_url.assert_called_once
+  assert result.id == mock_url_obj.id
+  assert result.long_url == mock_url_obj.long_url
+  assert result.short_code == mock_url_obj.short_code
   assert mock_db_repo.save.call_count == 2
+  assert mock_db_repo.get_by_long_url.call_count == 1
 
 def test_get_or_create_race_condition_fail(mock_db_repo, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = None
@@ -48,13 +50,8 @@ def test_get_or_create_race_condition_fail(mock_db_repo, create_url_obj, url_ser
     url_service.get_or_create(create_url_obj)
 
   assert f"Failed to generate a unique code for '{create_url_obj.long_url}' URL" in str(exc.value)
-  assert mock_db_repo.get_by_long_url.assert_called_once
   assert mock_db_repo.save.call_count == 5
-
-def test_create_short_url_success(url_service, mock_base_url, mock_url_obj):
-  result = url_service.create_short_url(mock_base_url, mock_url_obj.short_code)
-
-  assert result == mock_base_url + mock_url_obj.short_code
+  assert mock_db_repo.get_by_long_url.call_count == 1
 
 def test_fetch_long_url_in_cache(mock_cache_repo, mock_url_obj, url_service):
   mock_cache_repo.get_by_short_code.return_value = mock_url_obj
@@ -62,10 +59,10 @@ def test_fetch_long_url_in_cache(mock_cache_repo, mock_url_obj, url_service):
 
   result = url_service.fetch_long_url(mock_url_obj.short_code)
 
-  assert result == mock_url_obj.long_url
-  assert mock_cache_repo.get_by_short_code.assert_called_once
-  assert mock_cache_repo.set_url_obj.assert_not_called
-  assert mock_cache_repo.increase_click_count.assert_called_once
+  assert result.long_url == mock_url_obj.long_url
+  assert mock_cache_repo.get_by_short_code.call_count == 1
+  assert mock_cache_repo.set_url_obj.call_count == 0
+  assert mock_cache_repo.increase_click_count.call_count == 1
 
 def test_fetch_long_url_in_db(mock_cache_repo, mock_db_repo, mock_url_obj, url_service):
   mock_cache_repo.get_by_short_code.return_value = None
@@ -75,11 +72,11 @@ def test_fetch_long_url_in_db(mock_cache_repo, mock_db_repo, mock_url_obj, url_s
 
   result = url_service.fetch_long_url(mock_url_obj.short_code)
 
-  assert result == mock_url_obj.long_url
-  assert mock_cache_repo.get_by_short_code.assert_called_once
-  assert mock_db_repo.get_by_short_code.assert_called_once
-  assert mock_cache_repo.set_url_obj.assert_called_once
-  assert mock_cache_repo.increase_click_count.assert_called_once
+  assert result.long_url == mock_url_obj.long_url
+  assert mock_cache_repo.get_by_short_code.call_count == 1
+  assert mock_db_repo.get_by_short_code.call_count == 1
+  assert mock_cache_repo.set_url_obj.call_count == 1
+  assert mock_cache_repo.increase_click_count.call_count == 1
 
 def test_fetch_long_url_not_found(mock_cache_repo, mock_db_repo, url_service, mock_url_obj):
   mock_cache_repo.get_by_short_code.return_value = None
@@ -89,7 +86,7 @@ def test_fetch_long_url_not_found(mock_cache_repo, mock_db_repo, url_service, mo
     url_service.fetch_long_url(mock_url_obj.short_code)
 
   assert f"Short code '{mock_url_obj.short_code}' not found" in str(exc.value)
-  assert mock_cache_repo.get_by_short_code.assert_called_once
-  assert mock_db_repo.get_by_short_code.assert_called_once
-  assert mock_cache_repo.set_url_obj.assert_not_called
-  assert mock_cache_repo.increase_click_count.assert_not_called
+  assert mock_cache_repo.get_by_short_code.call_count == 1
+  assert mock_db_repo.get_by_short_code.call_count == 1
+  assert mock_cache_repo.set_url_obj.call_count == 0
+  assert mock_cache_repo.increase_click_count.call_count == 0

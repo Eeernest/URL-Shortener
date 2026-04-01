@@ -17,10 +17,6 @@ def create_url_obj():
   return Url(long_url="https://github.com/", short_code="xyz123")
 
 @pytest.fixture
-def mock_base_url():
-  return "http://127.0.0.1:8000/"
-
-@pytest.fixture
 def mock_db_repo():
   return Mock()
 
