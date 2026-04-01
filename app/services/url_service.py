@@ -1,3 +1,4 @@
+from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
 from app.models.url_model import Url
 from app.schemas.url_schema import UrlCreate
 from app.repositories.url_db_repository import UrlDbRepository
@@ -7,8 +8,6 @@ from sqlalchemy.exc import IntegrityError
 
 import string
 import secrets
-
-from fastapi.exceptions import HTTPException
 
 class UrlService:
   def __init__(self, db_repo: UrlDbRepository, cache_repo: UrlCacheRepository):
@@ -35,7 +34,7 @@ class UrlService:
       except IntegrityError:
         continue
 
-    raise RuntimeError("Failed to generate a unique short_code after several attempts")
+    raise ShortCodeGenerationError(f"Failed to generate a unique code for '{url.long_url}' URL")
 
   def create_short_url(self, base_url: str, short_code: str) -> str:
     return f"{base_url.rstrip('/')}/{short_code}"
@@ -47,7 +46,7 @@ class UrlService:
       url_obj = self.db_repo.get_by_short_code(short_code)
 
       if url_obj is None:
-        raise HTTPException(status_code=404, detail="Short code not found")
+        raise UrlNotFoundError(f"Short code '{short_code}' not found")
       
       self.cache_repo.set_url_obj(url_obj)
     
