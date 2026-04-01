@@ -18,19 +18,18 @@ class UrlService:
     characters = string.digits + string.ascii_letters
     return "".join(secrets.choice(characters) for _ in range(length))
       
-  def get_or_create(self, url: UrlCreate, base_url: str, retries=5) -> Url:
+  def get_or_create(self, url: UrlCreate, retries=5) -> Url:
     existing_url_obj = self.db_repo.get_by_long_url(str(url.long_url))
 
     if existing_url_obj is not None:
-      return f"{base_url.rstrip('/')}/{existing_url_obj.short_code}"
+      return existing_url_obj
     
     for _ in range(retries):
       short_code = self._generate_short_code()
       url_obj = Url(long_url=str(url.long_url), short_code=short_code)
 
       try:
-        saved_url_obj = self.db_repo.save(url_obj)
-        return f"{base_url.rstrip('/')}/{saved_url_obj.short_code}"
+        return self.db_repo.save(url_obj)
 
       except IntegrityError:
         continue
@@ -50,4 +49,4 @@ class UrlService:
     
     self.cache_repo.increase_click_count(short_code)
 
-    return url_obj.long_url
+    return url_obj

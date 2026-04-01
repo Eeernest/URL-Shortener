@@ -11,7 +11,9 @@ router = APIRouter()
 @router.post("/shorten", response_model=ShortUrlResponse)
 def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
   try:
-    return ShortUrlResponse(short_url=service.get_or_create(url, str(request.base_url)))
+    url_obj = service.get_or_create(url)
+
+    return ShortUrlResponse(short_url=f"{str(request.base_url).rstrip('/')}/{url_obj.short_code}")
   
   except ShortCodeGenerationError as exc:
     raise HTTPException(status_code=500, detail=str(exc))
@@ -19,7 +21,9 @@ def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
 @router.get("/{short_code}")
 def fetch_long_url(service: UrlDep, short_code: str):
   try:
-    return RedirectResponse(url=service.fetch_long_url(short_code))
+    url_obj = service.fetch_long_url(short_code)
+
+    return RedirectResponse(url=url_obj.long_url)
   
   except UrlNotFoundError:
     raise HTTPException(status_code=404, detail="Short code not found")
