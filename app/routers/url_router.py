@@ -14,5 +14,5 @@ def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
   return ShortUrlResponse(short_url=short_url)
 
 @router.get("/{short_code}")
-def redirect(service: UrlDep, short_code: str):
-  return RedirectResponse(url=service.redirect(short_code))  
+def fetch_long_url(service: UrlDep, short_code: str):
+  return RedirectResponse(url=service.redirect(short_code))

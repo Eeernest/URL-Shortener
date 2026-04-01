@@ -40,7 +40,7 @@ class UrlService:
   def create_short_url(self, base_url: str, short_code: str) -> str:
     return f"{base_url.rstrip('/')}/{short_code}"
   
-  def redirect(self, short_code: str) -> Url:
+  def fetch_long_url(self, short_code: str) -> Url:
     url_obj = self.cache_repo.get_by_short_code(short_code)
 
     if url_obj is None:

@@ -54,7 +54,7 @@ def test_create_short_url_success(url_service, mock_base_url, mock_url_obj):
 
   assert result == mock_base_url + mock_url_obj.short_code
 
-def test_redirect_in_cache(mock_cache_repo, mock_url_obj, url_service):
+def test_fetch_long_url_in_cache(mock_cache_repo, mock_url_obj, url_service):
   mock_cache_repo.get_by_short_code.return_value = mock_url_obj
   mock_cache_repo.increase_click_count.return_value = 1
 
@@ -65,7 +65,7 @@ def test_redirect_in_cache(mock_cache_repo, mock_url_obj, url_service):
   assert mock_cache_repo.set_url_obj.assert_not_called
   assert mock_cache_repo.increase_click_count.assert_called_once
 
-def test_redirect_in_db(mock_cache_repo, mock_db_repo, mock_url_obj, url_service):
+def test_fetch_long_url_in_db(mock_cache_repo, mock_db_repo, mock_url_obj, url_service):
   mock_cache_repo.get_by_short_code.return_value = None
   mock_db_repo.get_by_short_code.return_value = mock_url_obj
   mock_cache_repo.set_url_obj.return_value = True
@@ -79,7 +79,7 @@ def test_redirect_in_db(mock_cache_repo, mock_db_repo, mock_url_obj, url_service
   assert mock_cache_repo.set_url_obj.assert_called_once
   assert mock_cache_repo.increase_click_count.assert_called_once
 
-def test_redirect_not_found(mock_cache_repo, mock_db_repo, url_service, mock_url_obj):
+def test_fetch_long_url_not_found(mock_cache_repo, mock_db_repo, url_service, mock_url_obj):
   mock_cache_repo.get_by_short_code.return_value = None
   mock_db_repo.get_by_short_code.return_value = None
 
