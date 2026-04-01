@@ -20,3 +20,4 @@ def test_create_short_url_failure(client, mock_service, mock_url_obj):
 
   assert result.status_code == 500
   assert data["detail"] == f"Failed to generate a unique code for '{mock_url_obj.short_code}' URL"
+  assert mock_service.get_or_create.call_count == 1
