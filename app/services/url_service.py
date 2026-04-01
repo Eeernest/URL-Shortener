@@ -18,26 +18,24 @@ class UrlService:
     characters = string.digits + string.ascii_letters
     return "".join(secrets.choice(characters) for _ in range(length))
       
-  def get_or_create(self, url: UrlCreate, retries=5) -> Url:
-    existing_long_url = self.db_repo.get_by_long_url(str(url.long_url))
+  def get_or_create(self, url: UrlCreate, base_url: str, retries=5) -> Url:
+    existing_url_obj = self.db_repo.get_by_long_url(str(url.long_url))
 
-    if existing_long_url is not None:
-      return existing_long_url
+    if existing_url_obj is not None:
+      return f"{base_url.rstrip('/')}/{existing_url_obj.short_code}"
     
     for _ in range(retries):
       short_code = self._generate_short_code()
       url_obj = Url(long_url=str(url.long_url), short_code=short_code)
 
       try:
-        return self.db_repo.save(url_obj)
-      
+        saved_url_obj = self.db_repo.save(url_obj)
+        return f"{base_url.rstrip('/')}/{saved_url_obj.short_code}"
+
       except IntegrityError:
         continue
 
     raise ShortCodeGenerationError(f"Failed to generate a unique code for '{url.long_url}' URL")
-
-  def create_short_url(self, base_url: str, short_code: str) -> str:
-    return f"{base_url.rstrip('/')}/{short_code}"
   
   def fetch_long_url(self, short_code: str) -> Url:
     url_obj = self.cache_repo.get_by_short_code(short_code)
