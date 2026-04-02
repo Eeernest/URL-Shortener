@@ -8,12 +8,12 @@ from app.dependencies.url_dependency import get_url_service
 from app.main import app
 
 @pytest.fixture
-def mock_service():
+def mock_url_service():
   return Mock()
 
 @pytest.fixture
-def client(mock_service):
-  app.dependency_overrides[get_url_service] = lambda: mock_service
+def client(mock_url_service):
+  app.dependency_overrides[get_url_service] = lambda: mock_url_service
 
   with TestClient(app) as c:
     yield c
