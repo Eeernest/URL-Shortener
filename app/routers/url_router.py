@@ -13,7 +13,7 @@ def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
   try:
     url_obj = service.get_or_create(url)
 
-    return ShortUrlResponse(short_url=f"{str(request.base_url)}{url_obj.short_code}")
+    return ShortUrlResponse(short_url=f"{str(request.base_url).rstrip('/')}/{url_obj.short_code}")
   
   except ShortCodeGenerationError as exc:
     raise HTTPException(status_code=500, detail=str(exc))
