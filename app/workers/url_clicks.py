@@ -23,7 +23,7 @@ def run():
 
   while True:
     sync_clicks(cache_repo, db_repo)
-    time.sleep(60)
+    time.sleep(5)
 
 if __name__ == "__main__":
   run()
