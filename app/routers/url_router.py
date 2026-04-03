@@ -39,4 +39,4 @@ def fetch_stats(service: UrlDep, short_url: str):
     return UrlStatsResponse(click_count=url_obj.click_count)
   
   except UrlNotFoundError:
-    raise HTTPException(status_code=404, detail="Short_url not found")
+    raise HTTPException(status_code=404, detail="Short URL not found")
