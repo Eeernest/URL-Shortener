@@ -17,6 +17,8 @@ class UrlService:
   def _generate_short_code(self, length=6) -> str:
     characters = string.digits + string.ascii_letters
     return "".join(secrets.choice(characters) for _ in range(length))
+
+
       
   def get_or_create(self, url: UrlCreate, retries=5) -> Url:
     existing_url_obj = self.db_repo.get_by_long_url(str(url.long_url))
@@ -46,7 +48,5 @@ class UrlService:
         raise UrlNotFoundError(f"Short code '{short_code}' not found")
       
       self.cache_repo.set_url_obj(url_obj)
-    
-    self.cache_repo.increase_click_count(short_code)
 
     return url_obj
