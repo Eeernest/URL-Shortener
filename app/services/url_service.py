@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 import string
 import secrets
+from urllib.parse import urlparse
 
 class UrlService:
   def __init__(self, db_repo: UrlDbRepository, cache_repo: UrlCacheRepository):
@@ -17,6 +18,10 @@ class UrlService:
   def _generate_short_code(self, length=6) -> str:
     characters = string.digits + string.ascii_letters
     return "".join(secrets.choice(characters) for _ in range(length))
+
+  def _extract_short_code(self, short_url: str) -> str:
+    path = urlparse(short_url).path
+    return path.lstrip("/")
 
 
       
@@ -49,4 +54,14 @@ class UrlService:
       
       self.cache_repo.set_url_obj(url_obj)
 
+    return url_obj
+  
+  def fetch_stats(self, short_url: str) -> Url:
+    short_code = self._extract_short_code(short_url)
+
+    url_obj = self.db_repo.get_by_short_code(short_code)
+
+    if url_obj is None:
+      raise UrlNotFoundError(f"Short URL '{short_url}' not found")
+    
     return url_obj

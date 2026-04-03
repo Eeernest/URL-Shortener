@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.exceptions import HTTPException
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
-from app.schemas.url_schema import UrlCreate, ShortUrlResponse
+from app.schemas.url_schema import UrlCreate, ShortUrlResponse, UrlStatsResponse
 from app.dependencies.url_dependency import UrlDep
 from app.tasks.url_db_task import increment_click_task
 
@@ -30,3 +30,13 @@ def fetch_long_url(service: UrlDep, short_code: str, background_tasks: Backgroun
   
   except UrlNotFoundError:
     raise HTTPException(status_code=404, detail="Short code not found")
+  
+@router.get("/stats/{short_url:path}", response_model=UrlStatsResponse)
+def fetch_stats(service: UrlDep, short_url: str):
+  try:
+    url_obj = service.fetch_stats(short_url)
+
+    return UrlStatsResponse(click_count=url_obj.click_count)
+  
+  except UrlNotFoundError:
+    raise HTTPException(status_code=404, detail="Short_url not found")
