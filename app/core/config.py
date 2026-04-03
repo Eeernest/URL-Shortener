@@ -9,3 +9,7 @@ class Config:
   REDIS_URL = f"redis://{os.getenv('REDIS_HOST', 'localhost')}:{os.getenv('REDIS_PORT', 6379)}/0"
 
   TTL = 604800
+
+  REDIS_RL_URL = f"redis://{os.getenv('REDIS_RL_HOST', 'localhost')}:{os.getenv('REDIS_RL_POR', 6379)}/0"
+
+  RL_TTL = 60

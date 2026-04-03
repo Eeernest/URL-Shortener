@@ -3,6 +3,13 @@ import logging
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+from app.core.config import Config
+
+limiter = Limiter(key_func=get_remote_address, storage_uri=Config.REDIS_RL_URL)
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s = %(message)s")
 
 class LoggingMiddleware(BaseHTTPMiddleware):

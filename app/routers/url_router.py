@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.exceptions import HTTPException
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
+from app.core.middleware import limiter
 from app.schemas.url_schema import UrlCreate, ShortUrlResponse, UrlStatsResponse
 from app.dependencies.url_dependency import UrlDep
 from app.tasks.url_db_task import increment_click_task
@@ -10,6 +11,7 @@ from app.tasks.url_db_task import increment_click_task
 router = APIRouter()
 
 @router.post("/shorten", response_model=ShortUrlResponse)
+@limiter.limit("10/minute")
 def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
   try:
     url_obj = service.get_or_create(url)
@@ -20,7 +22,8 @@ def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
     raise HTTPException(status_code=500, detail=str(exc))
 
 @router.get("/{short_code}")
-def fetch_long_url(service: UrlDep, short_code: str, background_tasks: BackgroundTasks):
+@limiter.limit("100/minute")
+def fetch_long_url(service: UrlDep, short_code: str, background_tasks: BackgroundTasks, request: Request):
   try:
     url_obj = service.fetch_long_url(short_code)
 
@@ -32,7 +35,8 @@ def fetch_long_url(service: UrlDep, short_code: str, background_tasks: Backgroun
     raise HTTPException(status_code=404, detail="Short code not found")
   
 @router.get("/stats/{short_url:path}", response_model=UrlStatsResponse)
-def fetch_stats(service: UrlDep, short_url: str):
+@limiter.limit("10/minute")
+def fetch_stats(service: UrlDep, short_url: str, request: Request):
   try:
     url_obj = service.fetch_stats(short_url)
 
