@@ -1,7 +1,7 @@
 from app.models.url_model import Url
 
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 
 class UrlDbRepository:
@@ -22,13 +22,11 @@ class UrlDbRepository:
 
       return url
     
-    except IntegrityError as e:
+    except IntegrityError as exc:
       self.session.rollback()
 
-      raise e
+      raise exc
     
-  def increase_click_count(self, short_code: str, count: int):
-    url_obj = self.get_by_short_code(short_code)
-
-    url_obj.click_count += 1
-    self.save(url_obj)
+  def increment_click(self, short_code: str):
+    self.session.execute(update(Url).where(Url.short_code == short_code).values(click_count=Url.click_count + 1).execution_options(synchronize_session=False))
+    self.session.commit()

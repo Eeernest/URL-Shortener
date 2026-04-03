@@ -28,12 +28,3 @@ class UrlCacheRepository:
     cache_key = url_obj.short_code
 
     return self.redis.set(cache_key, data, ex=self.config.TTL)
-  
-  def increase_click_count(self, short_code: str):
-    self.redis.hincrby("click_count", short_code, 1)
-
-  def get_click_count(self) -> dict:
-    return self.redis.hgetall("click_count")
-  
-  def clear_click_count(self):
-    self.redis.delete("click_count")

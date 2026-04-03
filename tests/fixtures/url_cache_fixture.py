@@ -9,11 +9,7 @@ def url_cache_repo(redis_container):
   config = Config()
   repo = UrlCacheRepository(redis=redis_container, config=config)
 
-  repo.clear_click_count()
-
   yield repo
-
-  repo.clear_click_count()
 
 @pytest.fixture
 def create_url_obj():

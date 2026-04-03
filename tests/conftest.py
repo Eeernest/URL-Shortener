@@ -19,6 +19,10 @@ def redis_container():
 
     yield client
 
+@pytest.fixture(autouse=True)
+def clear_redis_container(redis_container):
+  redis_container.flushall()
+
 @pytest.fixture(scope="session")
 def postgres_container():
   with PostgresContainer("postgres:18") as pgc:

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, BackgroundTasks
 from fastapi.responses import RedirectResponse
 from fastapi.exceptions import HTTPException
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
 from app.schemas.url_schema import UrlCreate, ShortUrlResponse
 from app.dependencies.url_dependency import UrlDep
+from app.tasks.url_db_task import increment_click_task
 
 router = APIRouter()
 
@@ -19,9 +20,11 @@ def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
     raise HTTPException(status_code=500, detail=str(exc))
 
 @router.get("/{short_code}")
-def fetch_long_url(service: UrlDep, short_code: str):
+def fetch_long_url(service: UrlDep, short_code: str, background_tasks: BackgroundTasks):
   try:
     url_obj = service.fetch_long_url(short_code)
+
+    background_tasks.add_task(increment_click_task, short_code)
 
     return RedirectResponse(url=url_obj.long_url)
   

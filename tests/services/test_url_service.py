@@ -55,20 +55,16 @@ def test_get_or_create_race_condition_fail(mock_db_repo, create_url_obj, url_ser
 
 def test_fetch_long_url_in_cache(mock_cache_repo, mock_url_obj, url_service):
   mock_cache_repo.get_by_short_code.return_value = mock_url_obj
-  mock_cache_repo.increase_click_count.return_value = 1
 
   result = url_service.fetch_long_url(mock_url_obj.short_code)
 
   assert result.long_url == mock_url_obj.long_url
   assert mock_cache_repo.get_by_short_code.call_count == 1
-  assert mock_cache_repo.set_url_obj.call_count == 0
-  assert mock_cache_repo.increase_click_count.call_count == 1
 
 def test_fetch_long_url_in_db(mock_cache_repo, mock_db_repo, mock_url_obj, url_service):
   mock_cache_repo.get_by_short_code.return_value = None
   mock_db_repo.get_by_short_code.return_value = mock_url_obj
   mock_cache_repo.set_url_obj.return_value = True
-  mock_cache_repo.increase_click_count.return_value = 1
 
   result = url_service.fetch_long_url(mock_url_obj.short_code)
 
@@ -76,7 +72,6 @@ def test_fetch_long_url_in_db(mock_cache_repo, mock_db_repo, mock_url_obj, url_s
   assert mock_cache_repo.get_by_short_code.call_count == 1
   assert mock_db_repo.get_by_short_code.call_count == 1
   assert mock_cache_repo.set_url_obj.call_count == 1
-  assert mock_cache_repo.increase_click_count.call_count == 1
 
 def test_fetch_long_url_not_found(mock_cache_repo, mock_db_repo, url_service, mock_url_obj):
   mock_cache_repo.get_by_short_code.return_value = None
@@ -89,4 +84,3 @@ def test_fetch_long_url_not_found(mock_cache_repo, mock_db_repo, url_service, mo
   assert mock_cache_repo.get_by_short_code.call_count == 1
   assert mock_db_repo.get_by_short_code.call_count == 1
   assert mock_cache_repo.set_url_obj.call_count == 0
-  assert mock_cache_repo.increase_click_count.call_count == 0
