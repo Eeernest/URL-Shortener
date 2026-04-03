@@ -21,3 +21,10 @@ def test_save(url_db_repo, create_url_obj):
   assert result.id is not None
   assert result.long_url == create_url_obj.long_url
   assert result.short_code == create_url_obj.short_code
+
+def test_increment_click(url_db_repo, db_session, saved_url_obj):
+  url_db_repo.increment_click(saved_url_obj.short_code)
+
+  db_session.refresh(saved_url_obj)
+
+  assert saved_url_obj.click_count == 1
