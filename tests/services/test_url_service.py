@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
 
-from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_db_repo, mock_cache_repo, url_service
+from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_db_repo, mock_cache_repo, url_service, mock_short_url
 
 def test_get_or_create_get_success(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = mock_url_obj
@@ -84,3 +84,20 @@ def test_fetch_long_url_not_found(mock_cache_repo, mock_db_repo, url_service, mo
   assert mock_cache_repo.get_by_short_code.call_count == 1
   assert mock_db_repo.get_by_short_code.call_count == 1
   assert mock_cache_repo.set_url_obj.call_count == 0
+
+def test_fetch_stats_success(mock_db_repo, mock_url_obj, url_service, mock_short_url):
+  mock_db_repo.get_by_short_code.return_value = mock_url_obj
+
+  result = url_service.fetch_stats(mock_short_url)
+
+  assert result.short_code == mock_url_obj.short_code
+  assert mock_db_repo.get_by_short_code.call_count == 1
+
+def test_fetch_stats_short_url_not_found(mock_db_repo, url_service, mock_short_url):
+  mock_db_repo.get_by_short_code.return_value = None
+
+  with pytest.raises(UrlNotFoundError) as exc:
+    url_service.fetch_stats(mock_short_url)
+
+  assert f"Short URL '{mock_short_url}' not found" in str(exc.value)
+  assert mock_db_repo.get_by_short_code.call_count == 1

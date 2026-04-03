@@ -25,5 +25,10 @@ def mock_url_obj():
   return Url(
     id=1,
     long_url="https://example.com",
-    short_code="xyz123"
+    short_code="xyz123",
+    click_count=12
   )
+
+@pytest.fixture
+def mock_short_url():
+  return "https://github.com/xyz123"

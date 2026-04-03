@@ -1,4 +1,4 @@
-from tests.fixtures.url_router_fixture import client, mock_url_service, mock_url_obj
+from tests.fixtures.url_router_fixture import client, mock_url_service, mock_url_obj, mock_short_url
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
 
@@ -40,3 +40,23 @@ def test_fetch_long_url_not_found(client, mock_url_obj, mock_url_service):
   assert result.status_code == 404
   assert data["detail"] == "Short code not found"
   assert mock_url_service.fetch_long_url.call_count == 1
+
+def test_fetch_stats_success(client, mock_url_service, mock_url_obj, mock_short_url):
+  mock_url_service.fetch_stats.return_value = mock_url_obj
+
+  result = client.get(f"/stats/{mock_short_url}")
+  data = result.json()
+
+  assert result.status_code == 200
+  assert data["click_count"] == mock_url_obj.click_count
+  assert mock_url_service.fetch_stats.call_count == 1
+
+def test_fetch_stats_short_url_not_found(client, mock_url_service, mock_short_url):
+  mock_url_service.fetch_stats.side_effect = UrlNotFoundError(f"Short URL '{mock_short_url}' not found")
+
+  result = client.get(f"/stats/{mock_short_url}")
+  data = result.json()
+
+  assert result.status_code == 404
+  assert data["detail"] == "Short URL not found"
+  assert mock_url_service.fetch_stats.call_count == 1

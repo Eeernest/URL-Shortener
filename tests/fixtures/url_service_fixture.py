@@ -17,6 +17,10 @@ def create_url_obj():
   return Url(long_url="https://github.com/", short_code="xyz123")
 
 @pytest.fixture
+def mock_short_url():
+  return "https://github.com/xyz123"
+
+@pytest.fixture
 def mock_db_repo():
   return Mock()
 
