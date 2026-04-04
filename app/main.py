@@ -12,7 +12,9 @@ from app.routers.url_router import router as url_router
 
 app = FastAPI()
 
-origins = ["http://localhost:3000"]
+origins = [
+  "http://127.0.0.1:5500"
+]
 
 app.add_middleware(
   CORSMiddleware,
