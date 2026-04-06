@@ -26,7 +26,17 @@ class UrlService:
 
       
   def get_or_create(self, url: UrlCreate, retries=5) -> Url:
-    existing_url_obj = self.db_repo.get_by_long_url(str(url.long_url))
+    long_url_str = str(url.long_url)
+
+    if urlparse(long_url_str).netloc == "127.0.0.1:8000":
+      short_code = self._extract_short_code(long_url_str)
+      potential_url_obj = self.db_repo.get_by_short_code(short_code)
+
+      if potential_url_obj is not None:
+        return potential_url_obj
+
+
+    existing_url_obj = self.db_repo.get_by_long_url(long_url_str)
 
     if existing_url_obj is not None:
       return existing_url_obj
