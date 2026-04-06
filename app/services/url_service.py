@@ -43,12 +43,17 @@ class UrlService:
     
     for _ in range(retries):
       short_code = self._generate_short_code()
-      url_obj = Url(long_url=str(url.long_url), short_code=short_code)
+      url_obj = Url(long_url=long_url_str, short_code=short_code)
 
       try:
         return self.db_repo.save(url_obj)
 
       except IntegrityError:
+        existing_url_obj = self.db_repo.get_by_long_url(long_url_str)
+
+        if existing_url_obj is not None:
+          return existing_url_obj
+
         continue
 
     raise ShortCodeGenerationError(f"Failed to generate a unique code for '{url.long_url}' URL")
