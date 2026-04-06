@@ -31,4 +31,4 @@ def mock_url_obj():
 
 @pytest.fixture
 def mock_short_url():
-  return "https://github.com/xyz123"
+  return "http://127.0.0.1:8000/xyz123"
