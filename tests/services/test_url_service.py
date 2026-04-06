@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
 
-from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_db_repo, mock_cache_repo, url_service, mock_short_url
+from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_db_repo, mock_cache_repo, url_service, mock_short_url, mock_input_short_url
 
 def test_get_or_create_get_success(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = mock_url_obj
@@ -29,6 +29,14 @@ def test_get_or_create_create_success(mock_db_repo, mock_url_obj, create_url_obj
   assert result.short_code == mock_url_obj.short_code
   assert mock_db_repo.get_by_long_url.call_count == 1
   assert mock_db_repo.save.call_count == 1
+
+def test_get_or_create_short_url_as_input(mock_db_repo, mock_url_obj, mock_input_short_url, url_service):
+  mock_db_repo.get_by_short_code.return_value = mock_url_obj
+
+  result = url_service.get_or_create(mock_input_short_url)
+
+  assert result.long_url == mock_url_obj.long_url
+  assert mock_db_repo.get_by_short_code.call_count == 1  
 
 def test_get_or_create_race_condition(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = None
