@@ -48,7 +48,7 @@ def test_get_or_create_race_condition(mock_db_repo, mock_url_obj, create_url_obj
   assert result.long_url == mock_url_obj.long_url
   assert result.short_code == mock_url_obj.short_code
   assert mock_db_repo.save.call_count == 2
-  assert mock_db_repo.get_by_long_url.call_count == 1
+  assert mock_db_repo.get_by_long_url.call_count == 2
 
 def test_get_or_create_race_condition_fail(mock_db_repo, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = None
@@ -59,7 +59,7 @@ def test_get_or_create_race_condition_fail(mock_db_repo, create_url_obj, url_ser
 
   assert f"Failed to generate a unique code for '{create_url_obj.long_url}' URL" in str(exc.value)
   assert mock_db_repo.save.call_count == 5
-  assert mock_db_repo.get_by_long_url.call_count == 1
+  assert mock_db_repo.get_by_long_url.call_count == 6
 
 def test_fetch_long_url_in_cache(mock_cache_repo, mock_url_obj, url_service):
   mock_cache_repo.get_by_short_code.return_value = mock_url_obj
