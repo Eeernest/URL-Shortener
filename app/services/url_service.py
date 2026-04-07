@@ -22,25 +22,8 @@ class UrlService:
   def _extract_short_code(self, short_url: str) -> str:
     path = urlparse(short_url).path
     return path.lstrip("/")
-
-
-      
-  def get_or_create(self, url: UrlCreate, retries=5) -> Url:
-    long_url_str = str(url.long_url)
-
-    if urlparse(long_url_str).netloc == "127.0.0.1:8000":
-      short_code = self._extract_short_code(long_url_str)
-      potential_url_obj = self.db_repo.get_by_short_code(short_code)
-
-      if potential_url_obj is not None:
-        return potential_url_obj
-
-
-    existing_url_obj = self.db_repo.get_by_long_url(long_url_str)
-
-    if existing_url_obj is not None:
-      return existing_url_obj
-    
+  
+  def _create_url_obj(self, long_url_str: str, retries: int) -> Url:
     for _ in range(retries):
       short_code = self._generate_short_code()
       url_obj = Url(long_url=long_url_str, short_code=short_code)
@@ -56,7 +39,29 @@ class UrlService:
 
         continue
 
-    raise ShortCodeGenerationError(f"Failed to generate a unique code for '{url.long_url}' URL")
+    raise ShortCodeGenerationError(f"Failed to generate a unique code for '{long_url_str}' URL")
+  
+  def _resolve_internal_short_url(self, long_url: str) -> Url | None:
+    if urlparse(long_url).netloc != "127.0.0.1:8000":
+      return None
+
+    short_code = self._extract_short_code(long_url)
+    return self.db_repo.get_by_short_code(short_code)
+
+  def get_or_create(self, url: UrlCreate, retries=5) -> Url:
+    long_url_str = str(url.long_url)
+
+    resolved_url_obj = self._resolve_internal_short_url(long_url_str)
+    
+    if resolved_url_obj is not None:
+      return resolved_url_obj
+
+    existing_url_obj = self.db_repo.get_by_long_url(long_url_str)
+    
+    if existing_url_obj is not None:
+      return existing_url_obj
+    
+    return self._create_url_obj(long_url_str, retries)
   
   def fetch_long_url(self, short_code: str) -> Url:
     url_obj = self.cache_repo.get_by_short_code(short_code)
