@@ -18,15 +18,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
     logging.info(f"Request: {request.method} {request.url}")
 
-    try:
-      response = await call_next(request)
-
-    except Exception as exc:
-      process_time = time.perf_counter() - start_time
-
-      logging.error(f"ERROR: {request.method} {request.url} - Process time: {process_time:.4f}s", exc_info=True)
-
-      raise exc
+    response = await call_next(request)
 
     process_time = time.perf_counter() - start_time
 
