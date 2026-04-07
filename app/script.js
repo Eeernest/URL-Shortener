@@ -11,11 +11,7 @@ async function shortenUrl() {
     if (!response.ok) {
       const error = await response.json();
 
-      if (response.status == 429) {
-        throw new Error("Too many requests! Please try again later.")
-      }
-
-      throw new Error(error.detail || "Error occured");
+      throw new Error(error.detail || "Unexpected error happened");
     }
 
     const data = await response.json();
@@ -37,17 +33,13 @@ async function showStats() {
     if (!response.ok) {
       const error = await response.json();
 
-      if (response.status == 429) {
-        throw new Error("Too many requests! Please try again later.")
-      }
-
-      throw new Error(error.detail || "Error occured");
+      throw new Error(error.detail || "Unexpected error happened");
     }
 
     const data = await response.json();
 
     document.getElementById("js-stats-result").innerText = `Clicks: ${data.click_count}`;
   } catch(exc) {
-    document.getElementById("js-stats-result").inneText = `Error: ${exc.message}`;
+    document.getElementById("js-stats-result").innerText = `Error: ${exc.message}`;
   }
 }
