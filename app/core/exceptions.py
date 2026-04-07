@@ -1,7 +1,14 @@
-class ShortCodeGenerationError(Exception):
-  # raised when a unique short codecannot be generated
-  pass
+class AppBaseException(Exception):
+  status_code = 500
+  detail = "An error occured"
 
-class UrlNotFoundError(Exception):
+class ShortCodeGenerationError(AppBaseException):
+  # raised when a unique short codecannot be generated
+  
+  detail = "Failed to generate unique code"
+
+class UrlNotFoundError(AppBaseException):
   # raised when a short code does not exist in cache and db
-  pass
+  
+  status_code = 404
+  detail = "Short URL not found"
