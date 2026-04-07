@@ -12,13 +12,13 @@ def test_create_short_url_success(client, mock_url_service, mock_url_obj):
   assert mock_url_service.get_or_create.call_count == 1
 
 def test_create_short_url_failure(client, mock_url_service, mock_url_obj):
-  mock_url_service.get_or_create.side_effect = ShortCodeGenerationError(f"Failed to generate a unique code for '{mock_url_obj.short_code}' URL")
+  mock_url_service.get_or_create.side_effect = ShortCodeGenerationError
 
   result = client.post("/shorten", json={"long_url": "https://example.com"})
   data = result.json()
 
   assert result.status_code == 500
-  assert data["detail"] == f"Failed to generate a unique code for '{mock_url_obj.short_code}' URL"
+  assert data["detail"] == "Failed to generate unique code"
   assert mock_url_service.get_or_create.call_count == 1
 
 def test_fetch_long_url_success(client, mock_url_service, mock_url_obj):
@@ -31,13 +31,13 @@ def test_fetch_long_url_success(client, mock_url_service, mock_url_obj):
   assert mock_url_service.fetch_long_url.call_count == 1
 
 def test_fetch_long_url_not_found(client, mock_url_obj, mock_url_service):
-  mock_url_service.fetch_long_url.side_effect = UrlNotFoundError(f"Short code '{mock_url_obj.short_code}' not found")
+  mock_url_service.fetch_long_url.side_effect = UrlNotFoundError
 
   result = client.get(f"/{mock_url_obj.short_code}", follow_redirects=False)
   data = result.json()
 
   assert result.status_code == 404
-  assert data["detail"] == "Short code not found"
+  assert data["detail"] == "Short URL not found"
   assert mock_url_service.fetch_long_url.call_count == 1
 
 def test_fetch_stats_success(client, mock_url_service, mock_url_obj, mock_short_url):
