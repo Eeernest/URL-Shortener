@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import Mock
+
+import pytest
 
 from app.models.url_model import Url
 from app.services.url_service import UrlService

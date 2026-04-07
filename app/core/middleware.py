@@ -1,10 +1,10 @@
-import time
 import logging
-from fastapi import Request
-from starlette.middleware.base import BaseHTTPMiddleware
+import time
 
+from fastapi import Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import Config
 

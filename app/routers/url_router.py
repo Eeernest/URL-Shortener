@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Request, BackgroundTasks
+from fastapi import APIRouter, Request, BackgroundTasks, HTTPException
 from fastapi.responses import RedirectResponse
-from fastapi.exceptions import HTTPException
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
 from app.core.middleware import limiter
-from app.schemas.url_schema import UrlCreate, ShortUrlResponse, UrlStatsResponse
 from app.dependencies.url_dependency import UrlDep
+from app.schemas.url_schema import UrlCreate, ShortUrlResponse, UrlStatsResponse
 from app.tasks.url_db_task import increment_click_task
 
 router = APIRouter()

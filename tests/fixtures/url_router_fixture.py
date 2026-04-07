@@ -1,11 +1,11 @@
-import pytest
 from unittest.mock import Mock
 
 from fastapi.testclient import TestClient
+import pytest
 
-from app.models.url_model import Url
 from app.dependencies.url_dependency import get_url_service
 from app.main import app
+from app.models.url_model import Url
 
 @pytest.fixture
 def mock_url_service():

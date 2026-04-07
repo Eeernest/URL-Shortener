@@ -1,7 +1,7 @@
-from redis import Redis
-
 from typing import Annotated
+
 from fastapi import Depends
+from redis import Redis
 
 from app.core.config import Config
 

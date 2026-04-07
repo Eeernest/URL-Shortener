@@ -1,6 +1,5 @@
-from tests.fixtures.url_router_fixture import client, mock_url_service, mock_url_obj, mock_short_url
-
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
+from tests.fixtures.url_router_fixture import client, mock_url_service, mock_url_obj, mock_short_url
 
 def test_create_short_url_success(client, mock_url_service, mock_url_obj):
   mock_url_service.get_or_create.return_value = mock_url_obj

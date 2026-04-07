@@ -1,10 +1,8 @@
-import pytest
 from fastapi.exceptions import HTTPException
-
+import pytest
 from sqlalchemy.exc import IntegrityError
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
-
 from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_db_repo, mock_cache_repo, url_service, mock_short_url, mock_input_short_url
 
 def test_get_or_create_get_success(mock_db_repo, mock_url_obj, create_url_obj, url_service):

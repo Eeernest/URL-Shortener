@@ -1,10 +1,9 @@
 import pytest
-from testcontainers.redis import RedisContainer
-from testcontainers.postgres import PostgresContainer
 import redis
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from testcontainers.postgres import PostgresContainer
+from testcontainers.redis import RedisContainer
 
 from app.db.url_db import Base
 

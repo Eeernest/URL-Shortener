@@ -1,5 +1,6 @@
-from redis import Redis
 import json
+
+from redis import Redis
 
 from app.core.config import Config
 from app.models.url_model import Url

@@ -1,9 +1,9 @@
+import logging
+from typing import Annotated
+
+from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
-
-from typing import Annotated
-from fastapi import Depends
-import logging
 
 from app.core.config import Config
 

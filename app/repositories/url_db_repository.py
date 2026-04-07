@@ -1,8 +1,8 @@
-from app.models.url_model import Url
-
-from sqlalchemy.orm import Session
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
+from app.models.url_model import Url
 
 class UrlDbRepository:
   def __init__(self, session: Session):
