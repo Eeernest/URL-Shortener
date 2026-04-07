@@ -4,7 +4,7 @@ from tests.fixtures.url_router_fixture import client, mock_url_service, mock_url
 def test_create_short_url_success(client, mock_url_service, mock_url_obj):
   mock_url_service.get_or_create.return_value = mock_url_obj
 
-  result = client.post("/shorten", json={"long_url": "https://example.com"})
+  result = client.post("/shorten", json={"long_url": mock_url_obj.long_url})
   data = result.json()
 
   assert result.status_code == 200
@@ -14,12 +14,19 @@ def test_create_short_url_success(client, mock_url_service, mock_url_obj):
 def test_create_short_url_failure(client, mock_url_service, mock_url_obj):
   mock_url_service.get_or_create.side_effect = ShortCodeGenerationError
 
-  result = client.post("/shorten", json={"long_url": "https://example.com"})
+  result = client.post("/shorten", json={"long_url": mock_url_obj.long_url})
   data = result.json()
 
   assert result.status_code == 500
   assert data["detail"] == "Failed to generate unique code"
   assert mock_url_service.get_or_create.call_count == 1
+
+def test_create_short_url_wrong_input_failure(client):
+  result = client.post("/shorten", json={"long_url": "not valid url"})
+  data = result.json()
+
+  assert result.status_code == 422
+  assert data["detail"] == "Wrong input data"
 
 def test_fetch_long_url_success(client, mock_url_service, mock_url_obj):
   mock_url_service.fetch_long_url.return_value = mock_url_obj
