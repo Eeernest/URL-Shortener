@@ -5,11 +5,13 @@ import pytest
 
 from app.core.config import Config
 from app.dependencies.url_dependency import get_url_service
+from app.dependencies.workers_dependency import get_url_worker
 from app.main import app
 from app.models.url_model import Url
 from app.repositories.url_db_repository import UrlDbRepository
 from app.repositories.url_cache_repository import UrlCacheRepository
 from app.services.url_service import UrlService
+from app.workers.url_worker import UrlWorker
 from tests.conftest import db_session
 
 @pytest.fixture
@@ -17,8 +19,13 @@ def mock_url_service():
   return Mock()
 
 @pytest.fixture
-def mock_client(mock_url_service):
+def mock_url_worker():
+  return Mock()
+
+@pytest.fixture
+def mock_client(mock_url_service, mock_url_worker):
   app.dependency_overrides[get_url_service] = lambda: mock_url_service
+  app.dependency_overrides[get_url_worker] = lambda: mock_url_worker
 
   with TestClient(app) as c:
     yield c
@@ -48,8 +55,13 @@ def integration_service(db_session, redis_container):
   return UrlService(db_repo, cache_repo)
 
 @pytest.fixture
-def integration_client(integration_service):
+def integration_url_worker(db_session):
+  return UrlWorker(lambda: db_session)
+
+@pytest.fixture
+def integration_client(integration_service, integration_url_worker):
   app.dependency_overrides[get_url_service] = lambda: integration_service
+  app.dependency_overrides[get_url_worker] = lambda: integration_url_worker
 
   with TestClient(app) as c:
     yield c

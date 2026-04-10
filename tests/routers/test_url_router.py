@@ -1,5 +1,5 @@
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
-from tests.fixtures.url_router_fixture import mock_client, mock_url_service, mock_url_obj, mock_short_url, integration_client, integration_service, payload_long_url
+from tests.fixtures.url_router_fixture import mock_client, mock_url_service, mock_url_worker, mock_url_obj, mock_short_url, integration_client, integration_service, integration_url_worker, payload_long_url
 
 def test_create_short_url_success(mock_client, mock_url_service, mock_url_obj):
   mock_url_service.get_or_create.return_value = mock_url_obj
@@ -81,3 +81,9 @@ def test_url_lifecycle_happy_path(integration_client, payload_long_url):
 
   assert fetch_long_url_result.status_code == 307
   assert fetch_long_url_result.headers["location"] == payload_long_url["long_url"]
+
+  fetch_stats_result = integration_client.get(f"/stats/{short_url}")
+  fetch_stats_data = fetch_stats_result.json()
+
+  assert fetch_stats_result.status_code == 200
+  assert fetch_stats_data["click_count"] == 1
