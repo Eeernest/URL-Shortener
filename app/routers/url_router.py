@@ -3,8 +3,8 @@ from fastapi.responses import RedirectResponse
 
 from app.core.middleware import limiter
 from app.dependencies.url_dependency import UrlDep
+from app.dependencies.workers_dependency import UrlWorkerDep
 from app.schemas.url_schema import UrlCreate, ShortUrlResponse, UrlStatsResponse
-from app.tasks.url_db_task import increment_click_task
 
 router = APIRouter()
 
@@ -17,10 +17,10 @@ def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
 
 @router.get("/{short_code}")
 @limiter.limit("100/minute")
-def fetch_long_url(service: UrlDep, short_code: str, background_tasks: BackgroundTasks, request: Request):
+def fetch_long_url(service: UrlDep, short_code: str, background_tasks: BackgroundTasks, worker: UrlWorkerDep, request: Request):
   url_obj = service.fetch_long_url(short_code)
 
-  background_tasks.add_task(increment_click_task, short_code)
+  background_tasks.add_task(worker.increment_click, short_code)
 
   return RedirectResponse(url=url_obj.long_url)
   
