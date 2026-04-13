@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 from sqlalchemy.exc import IntegrityError
 
+from app.core.config import Config
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
 from app.models.url_model import Url
 from app.repositories.url_cache_repository import UrlCacheRepository
@@ -11,9 +12,10 @@ from app.repositories.url_db_repository import UrlDbRepository
 from app.schemas.url_schema import UrlCreate
 
 class UrlService:
-  def __init__(self, db_repo: UrlDbRepository, cache_repo: UrlCacheRepository):
+  def __init__(self, db_repo: UrlDbRepository, cache_repo: UrlCacheRepository, config: Config):
     self.db_repo = db_repo
     self.cache_repo = cache_repo
+    self.config = config
 
   def _generate_short_code(self, length=6) -> str:
     characters = string.digits + string.ascii_letters
@@ -42,7 +44,7 @@ class UrlService:
     raise ShortCodeGenerationError(f"Failed to generate a unique code for '{long_url_str}' URL")
   
   def _resolve_internal_short_url(self, long_url: str) -> Url | None:
-    if urlparse(long_url).netloc != "127.0.0.1:8000":
+    if urlparse(long_url).netloc != self.config.NETLOC:
       return None
 
     short_code = self._extract_short_code(long_url)
