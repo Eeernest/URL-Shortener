@@ -52,7 +52,7 @@ def integration_service(db_session, redis_container):
   db_repo = UrlDbRepository(db_session)
   cache_repo = UrlCacheRepository(redis_container, config)
 
-  return UrlService(db_repo, cache_repo)
+  return UrlService(db_repo, cache_repo, config)
 
 @pytest.fixture
 def integration_url_worker(db_session):

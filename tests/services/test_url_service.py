@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
-from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_db_repo, mock_cache_repo, url_service, mock_short_url, mock_input_short_url
+from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_db_repo, mock_cache_repo, mock_config, url_service, mock_short_url, mock_input_short_url
 
 def test_get_or_create_get_success(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = mock_url_obj
@@ -28,7 +28,8 @@ def test_get_or_create_create_success(mock_db_repo, mock_url_obj, create_url_obj
   assert mock_db_repo.get_by_long_url.call_count == 1
   assert mock_db_repo.save.call_count == 1
 
-def test_get_or_create_short_url_as_input(mock_db_repo, mock_url_obj, mock_input_short_url, url_service):
+def test_get_or_create_short_url_as_input(mock_db_repo, mock_config, mock_url_obj, mock_input_short_url, url_service):
+  mock_config.NETLOC = "127.0.0.1:8000"
   mock_db_repo.get_by_short_code.return_value = mock_url_obj
 
   result = url_service.get_or_create(mock_input_short_url)

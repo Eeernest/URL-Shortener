@@ -34,5 +34,9 @@ def mock_cache_repo():
   return Mock()
 
 @pytest.fixture
-def url_service(mock_db_repo, mock_cache_repo):
-  return UrlService(mock_db_repo, mock_cache_repo)
+def mock_config():
+  return Mock()
+
+@pytest.fixture
+def url_service(mock_db_repo, mock_cache_repo, mock_config):
+  return UrlService(mock_db_repo, mock_cache_repo, mock_config)
