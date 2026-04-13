@@ -13,12 +13,12 @@ limiter = Limiter(key_func=get_remote_address, storage_uri=Config.REDIS_RL_URL)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s = %(message)s")
 
 class LoggingMiddleware(BaseHTTPMiddleware):
-  def dispatch(self, request: Request, call_next):
+  async def dispatch(self, request: Request, call_next):
     start_time = time.perf_counter()
 
     logging.info(f"Request: {request.method} {request.url}")
 
-    response = call_next(request)
+    response = await call_next(request)
 
     process_time = time.perf_counter() - start_time
 
