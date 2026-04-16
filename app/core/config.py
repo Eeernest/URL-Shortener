@@ -5,12 +5,12 @@ from dotenv import load_dotenv
 load_dotenv(".env")
 
 class Config:
-  DATABASE_URL = f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT', 5432)}/{os.getenv('POSTGRES_DB')}"
+  DATABASE_URL = os.getenv("POSTGRES_URL")
 
-  REDIS_URL = f"redis://{os.getenv('REDIS_HOST', 'localhost')}:{os.getenv('REDIS_PORT', 6379)}/0"
+  CACHE_URL = os.getenv("REDIS_URL")
 
   TTL = 604800
 
-  REDIS_RL_URL = f"redis://{os.getenv('REDIS_RL_HOST', 'localhost')}:{os.getenv('REDIS_RL_PORT', 6379)}/0"
+  CACHE_RL_URL = os.getenv("REDIS_RL_URL")
 
   NETLOC = os.getenv("NETLOC")

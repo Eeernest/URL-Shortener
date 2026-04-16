@@ -8,7 +8,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import Config
 
-limiter = Limiter(key_func=get_remote_address, storage_uri=Config.REDIS_RL_URL)
+limiter = Limiter(key_func=get_remote_address, storage_uri=Config.CACHE_RL_URL)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s = %(message)s")
 

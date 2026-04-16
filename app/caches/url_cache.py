@@ -5,7 +5,7 @@ from redis import Redis
 
 from app.core.config import Config
 
-REDIS_URL = Config.REDIS_URL
+REDIS_URL = Config.CACHE_URL
 
 redis_client = Redis.from_url(REDIS_URL, decode_responses=True)
 

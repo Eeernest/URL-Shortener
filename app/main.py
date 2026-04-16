@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +15,7 @@ from app.routers.url_router import router as url_router
 app = FastAPI()
 
 origins = [
-  "http://127.0.0.1:5500"
+  os.getenv("FRONT_URL")
 ]
 
 app.add_exception_handler(AppBaseException, custom_exc_handler)
