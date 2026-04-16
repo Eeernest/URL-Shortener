@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "url-shortener"
 version = "0.1.0"
 description = "Simple URL shortener built with FastAPI, Postgres and Redis."
-readme = "README.md"
+readme = "readme.md"
 requires-python = ">=3.12"
 authors = [
   {name = "Ernest"}
