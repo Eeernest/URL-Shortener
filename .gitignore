@@ -6,3 +6,5 @@ __pycache__/
 .idea/
 notes.txt
 *.egg-info/
+.venv
+.pytest_cache
