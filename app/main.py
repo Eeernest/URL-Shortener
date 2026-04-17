@@ -16,6 +16,18 @@ from app.routers.url_router import router as url_router
 
 app = FastAPI()
 
+origins = [
+  os.getenv("FRONT_URL")
+]
+
+app.add_middleware(
+  CORSMiddleware,
+  allow_origins=origins,
+  allow_credentials=True,
+  allow_methods=["POST", "GET", "OPTIONS"],
+  allow_headers=["Content-Type"]
+)
+
 app.add_exception_handler(AppBaseException, custom_exc_handler)
 app.add_exception_handler(RequestValidationError, validation_exc_handler)
 app.add_exception_handler(RateLimitExceeded, rate_limit_exc_handler)

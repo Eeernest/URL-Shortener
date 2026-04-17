@@ -2,7 +2,7 @@ async function shortenUrl() {
   const longUrl = document.getElementById("js-long-url").value;
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/shorten", {
+    const response = await fetch("/shorten", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({long_url: longUrl})
@@ -26,7 +26,7 @@ async function showStats() {
   const shortUrl = document.getElementById("js-short-url").value;
 
   try {
-    const response = await fetch(`http://127.0.0.1:8000/stats/${encodeURIComponent(shortUrl)}`, {
+    const response = await fetch(`/stats/${encodeURIComponent(shortUrl)}`, {
       method: "GET",
     });
 
