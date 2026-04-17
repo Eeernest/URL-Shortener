@@ -6,6 +6,7 @@ from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
 
 from app.db.url_db import Base
+from app.core.middleware import limiter
 
 @pytest.fixture(scope="session")
 def redis_container():
@@ -21,6 +22,10 @@ def redis_container():
 @pytest.fixture(autouse=True)
 def clear_redis_container(redis_container):
   redis_container.flushall()
+
+@pytest.fixture(scope="session", autouse=True)
+def disable_limiter(redis_container):
+  limiter.enabled = False
 
 @pytest.fixture(scope="session")
 def postgres_container():
