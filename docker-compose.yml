@@ -12,6 +12,12 @@ services:
     volumes:
     - postgres_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:alpine
     container_name: url-shortener-redis
@@ -20,6 +26,12 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
@@ -31,9 +43,11 @@ services:
     environment:
       - PYTHONPATH=/code
     depends_on:
-      - db
-      - redis
-  
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   redis_data:
