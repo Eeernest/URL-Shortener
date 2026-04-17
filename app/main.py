@@ -11,7 +11,6 @@ from slowapi.middleware import SlowAPIMiddleware
 from app.core.exceptions import AppBaseException
 from app.core.exception_handlers import custom_exc_handler, validation_exc_handler, rate_limit_exc_handler, general_exc_handler
 from app.core.middleware import LoggingMiddleware, limiter
-from app.db.url_db import create_db_and_table
 from app.routers.url_router import router as url_router
 
 app = FastAPI()
@@ -38,10 +37,6 @@ app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(LoggingMiddleware)
 
 app.state.limiter = limiter
-
-@app.on_event("startup")
-def on_startup():
-  create_db_and_table()
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
