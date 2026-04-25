@@ -34,3 +34,14 @@ test = [
 
 [tool.setuptools]
 packages = ["app"]
+
+[tool.pytest.ini_options]
+
+testpaths = ["tests"]
+
+addopts = "-ra -q --strict-markers"
+
+markers = [
+  "unit: marks tests as unit tests",
+  "integration: marks tests as integration tests (requires Docker Testcontainers)"
+]
