@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv(".env")
 
 class Config:
-  DATABASE_URL = os.getenv("POSTGRES_URL")
+  DATABASE_URL = os.getenv("POSTGRES_URL",  "postgresql://user:pass@localhost/dummy")
 
   CACHE_URL = os.getenv("REDIS_URL")
 
