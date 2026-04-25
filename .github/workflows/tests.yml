@@ -5,6 +5,11 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/placeholder
+      REDIS_URL: redis://localhost:6379/0
+
     steps:
       - uses: actions/checkout@v4
 
@@ -20,11 +25,7 @@ jobs:
           pip install ".[test]"
 
       - name: Run Unit Tests
-        env:
-          PYTHONPATH: .
         run: pytest -m unit
 
       - name: Run Integration Tests
-        env:
-          PYTHONPATH: .
         run: pytest -m integration
