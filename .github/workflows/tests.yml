@@ -20,7 +20,11 @@ jobs:
           pip install ".[test]"
 
       - name: Run Unit Tests
+        env:
+          PYTHONPATH: .
         run: pytest -m unit
 
       - name: Run Integration Tests
+        env:
+          PYTHONPATH: .
         run: pytest -m integration
