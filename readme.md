@@ -18,7 +18,14 @@ Simple REST API for shortening URLs, accessible via local server.
 ### Statistics
 - View click count for specific short URL by using it in input
 
-## CI/CD & Testing
+### Rate Limiting
+- Custom slowapi rate limits for specific endpoints
+- Integration with Redis to track request counts
+
+### Security
+- Global exception handling to catch and format exceptions into user-friendly error messages for the frontend
+
+### CI/CD & Testing
 - GitHub Actions integration for Continuous Integration (CI) - tests are automatically run on every push and pull request
 - Unit tests with pytest
 - Integration tests with pytest and Testcontainers
@@ -111,5 +118,6 @@ pytest
 - Database: PostgreSQL, SQLAlchemy
 - Cache: Redis
 - Migrations: Alembic
+- Rate Limiting: slowapi
 - Tests: Pytest, Testcontainers
 - Infrastructure: Docker & Docker Compose
