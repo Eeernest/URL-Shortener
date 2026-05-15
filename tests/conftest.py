@@ -1,5 +1,5 @@
 import pytest
-import redis
+from redis.asyncio import Redis
 from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from testcontainers.postgres import PostgresContainer
@@ -13,19 +13,24 @@ def anyio_backend():
   return "asyncio"
 
 @pytest.fixture(scope="session")
-def redis_container():
+async def redis_container():
   with RedisContainer("redis:7") as rdc:
-    client = redis.Redis(
-      host=rdc.get_container_host_ip(),
-      port=rdc.get_exposed_port(6379),
+    host = rdc.get_container_host_ip()
+    port = rdc.get_exposed_port(6379)
+
+    client = Redis(
+      host=host,
+      port=port,
       decode_responses=True
     )
 
     yield client
 
+    await client.aclose()
+
 @pytest.fixture(autouse=True)
-def clear_redis_container(redis_container):
-  redis_container.flushall()
+async def clear_redis_container(redis_container):
+  await redis_container.flushall()
 
 @pytest.fixture(scope="session", autouse=True)
 def disable_limiter(redis_container):
