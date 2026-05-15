@@ -2,8 +2,8 @@ import logging
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import Config
 
@@ -11,27 +11,26 @@ logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
 DATABASE_URL = Config.DATABASE_URL
 
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_async_engine(
+  DATABASE_URL,
+  echo=False,
+  pool_pre_ping=True,
+  pool_size=20,
+  max_overflow=30
+)
 
-SessionLocal = sessionmaker(
+AsyncSessionLocal = async_sessionmaker(
+  bind=engine,
+  expire_on_commit=False,
   autocommit=False,
-  autoflush=False,
-  bind=engine
+  autoflush=False
 )
 
 class Base(DeclarativeBase):
   pass
 
-def create_db_and_table():
-  Base.metadata.create_all(bind=engine)
+async def get_session():
+  async with AsyncSessionLocal() as session:
+    yield session
 
-def get_session():
-  db = SessionLocal()
-
-  try:
-    yield db
-
-  finally:
-    db.close()
-
-SessionDep = Annotated[Session, Depends(get_session)]
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
