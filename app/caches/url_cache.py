@@ -1,15 +1,18 @@
 from typing import Annotated
 
 from fastapi import Depends
-from redis import Redis
+from redis.asyncio import Redis, ConnectionPool
 
 from app.core.config import Config
 
-REDIS_URL = Config.CACHE_URL
+pool = ConnectionPool.from_url(Config.CACHE_URL, decode_responses=True)
 
-redis_client = Redis.from_url(REDIS_URL, decode_responses=True)
+async def get_redis():
+  client = Redis.from_pool(pool, protocol=3)
 
-def get_redis():
-  yield redis_client
+  try:
+    yield client
+  finally:
+    await client.close()
 
 RedisDep = Annotated[Redis, Depends(get_redis)]
