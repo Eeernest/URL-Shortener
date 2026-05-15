@@ -1,12 +1,16 @@
 import pytest
 import redis
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
 
 from app.db.url_db import Base
 from app.core.middleware import limiter
+
+@pytest.fixture(scope="session")
+def anyio_backend():
+  return "asyncio"
 
 @pytest.fixture(scope="session")
 def redis_container():
@@ -29,30 +33,48 @@ def disable_limiter(redis_container):
 
 @pytest.fixture(scope="session")
 def postgres_container():
-  with PostgresContainer("postgres:18") as pgc:
-    yield pgc
+  with PostgresContainer("postgres:16-alpine") as postgres:
+    yield postgres
 
 @pytest.fixture(scope="session")
-def db_engine(postgres_container):
-  engine = create_engine(postgres_container.get_connection_url())
+def test_engine(postgres_container):
+  url = postgres_container.get_connection_url().replace("postgresql+psycopg2", "postgresql+asyncpg")
 
-  Base.metadata.create_all(bind=engine)
+  engine = create_async_engine(
+    url,
+    poolclass=NullPool,
+  )
 
-  yield engine
+  return engine
 
-  engine.dispose()
+@pytest.fixture(scope="session")
+async def setup_database(test_engine):
+  async with test_engine.begin() as conn:
+    await conn.run_sync(Base.metadata.create_all)
 
-@pytest.fixture(scope="function")
-def db_session(db_engine):
-  connection = db_engine.connect()
-  transaction = connection.begin()
+  yield 
 
-  SessionLocal = sessionmaker(bind=connection)
-  session = SessionLocal()
+  async with test_engine.begin() as conn:
+    await conn.run_sync(Base.metadata.drop_all)
+  
+  await test_engine.dispose()
 
-  try:
-    yield session
+@pytest.fixture
+async def db_session(test_engine, setup_database):
+  conn = await test_engine.connect()
+  trans = await conn.begin()
 
-  finally:
-    session.close()
-    transaction.rollback()
+  test_async_session = async_sessionmaker(
+    bind=conn,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    join_transaction_mode="create_savepoint"
+  )
+
+  async with test_async_session() as session:
+    try:
+      yield session
+    finally:
+      await session.close()
+      await trans.rollback()
+      await conn.close()
