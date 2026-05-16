@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -27,15 +27,15 @@ def mock_input_short_url():
 
 @pytest.fixture
 def mock_db_repo():
-  return Mock()
+  return AsyncMock()
 
 @pytest.fixture
 def mock_cache_repo():
-  return Mock()
+  return AsyncMock()
 
 @pytest.fixture
 def mock_config():
-  return Mock()
+  return AsyncMock()
 
 @pytest.fixture
 def url_service(mock_db_repo, mock_cache_repo, mock_config):
