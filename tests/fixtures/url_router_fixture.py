@@ -1,6 +1,6 @@
-from unittest.mock import Mock
+from unittest.mock import AsyncMock
 
-from fastapi.testclient import TestClient
+from httpx import AsyncClient, ASGITransport
 import pytest
 
 from app.core.config import Config
@@ -16,18 +16,18 @@ from tests.conftest import db_session
 
 @pytest.fixture
 def mock_url_service():
-  return Mock()
+  return AsyncMock()
 
 @pytest.fixture
 def mock_url_worker():
-  return Mock()
+  return AsyncMock()
 
 @pytest.fixture
-def mock_client(mock_url_service, mock_url_worker):
+async def mock_client(mock_url_service, mock_url_worker):
   app.dependency_overrides[get_url_service] = lambda: mock_url_service
   app.dependency_overrides[get_url_worker] = lambda: mock_url_worker
 
-  with TestClient(app) as c:
+  async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
     yield c
   
   app.dependency_overrides.clear()
@@ -59,11 +59,11 @@ def integration_url_worker(db_session):
   return UrlWorker(lambda: db_session)
 
 @pytest.fixture
-def integration_client(integration_service, integration_url_worker):
+async def integration_client(integration_service, integration_url_worker):
   app.dependency_overrides[get_url_service] = lambda: integration_service
   app.dependency_overrides[get_url_worker] = lambda: integration_url_worker
 
-  with TestClient(app) as c:
+  async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
     yield c
   
   app.dependency_overrides.clear()
