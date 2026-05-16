@@ -26,11 +26,8 @@ async def redis_container():
 
     yield client
 
+    await client.flushall()
     await client.aclose()
-
-@pytest.fixture(autouse=True)
-async def clear_redis_container(redis_container):
-  await redis_container.flushall()
 
 @pytest.fixture(scope="session", autouse=True)
 def disable_limiter(redis_container):
