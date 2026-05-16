@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from app.core.exceptions import ShortCodeGenerationError, UrlNotFoundError
 from tests.fixtures.url_service_fixture import mock_url_obj, create_url_obj, mock_db_repo, mock_cache_repo, mock_config, url_service, mock_short_url, mock_input_short_url
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_get_or_create_get_success(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = mock_url_obj
@@ -17,7 +17,7 @@ async def test_get_or_create_get_success(mock_db_repo, mock_url_obj, create_url_
   assert mock_db_repo.get_by_long_url.call_count == 1
   assert mock_db_repo.save.call_count == 0
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_get_or_create_create_success(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = None
@@ -31,7 +31,7 @@ async def test_get_or_create_create_success(mock_db_repo, mock_url_obj, create_u
   assert mock_db_repo.get_by_long_url.call_count == 1
   assert mock_db_repo.save.call_count == 1
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_get_or_create_short_url_as_input(mock_db_repo, mock_config, mock_url_obj, mock_input_short_url, url_service):
   mock_config.NETLOC = "127.0.0.1:8000"
@@ -42,7 +42,7 @@ async def test_get_or_create_short_url_as_input(mock_db_repo, mock_config, mock_
   assert result.long_url == mock_url_obj.long_url
   assert mock_db_repo.get_by_short_code.call_count == 1  
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_get_or_create_race_condition(mock_db_repo, mock_url_obj, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = None
@@ -56,7 +56,7 @@ async def test_get_or_create_race_condition(mock_db_repo, mock_url_obj, create_u
   assert mock_db_repo.save.call_count == 2
   assert mock_db_repo.get_by_long_url.call_count == 2
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_get_or_create_race_condition_fail(mock_db_repo, create_url_obj, url_service):
   mock_db_repo.get_by_long_url.return_value = None
@@ -69,7 +69,7 @@ async def test_get_or_create_race_condition_fail(mock_db_repo, create_url_obj, u
   assert mock_db_repo.save.call_count == 5
   assert mock_db_repo.get_by_long_url.call_count == 6
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_fetch_long_url_in_cache(mock_cache_repo, mock_url_obj, url_service):
   mock_cache_repo.get_by_short_code.return_value = mock_url_obj
@@ -79,7 +79,7 @@ async def test_fetch_long_url_in_cache(mock_cache_repo, mock_url_obj, url_servic
   assert result.long_url == mock_url_obj.long_url
   assert mock_cache_repo.get_by_short_code.call_count == 1
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_fetch_long_url_in_db(mock_cache_repo, mock_db_repo, mock_url_obj, url_service):
   mock_cache_repo.get_by_short_code.return_value = None
@@ -93,7 +93,7 @@ async def test_fetch_long_url_in_db(mock_cache_repo, mock_db_repo, mock_url_obj,
   assert mock_db_repo.get_by_short_code.call_count == 1
   assert mock_cache_repo.set_url_obj.call_count == 1
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_fetch_long_url_not_found(mock_cache_repo, mock_db_repo, url_service, mock_url_obj):
   mock_cache_repo.get_by_short_code.return_value = None
@@ -107,7 +107,7 @@ async def test_fetch_long_url_not_found(mock_cache_repo, mock_db_repo, url_servi
   assert mock_db_repo.get_by_short_code.call_count == 1
   assert mock_cache_repo.set_url_obj.call_count == 0
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_fetch_stats_success(mock_db_repo, mock_url_obj, url_service, mock_short_url):
   mock_db_repo.get_by_short_code.return_value = mock_url_obj
@@ -117,7 +117,7 @@ async def test_fetch_stats_success(mock_db_repo, mock_url_obj, url_service, mock
   assert result.short_code == mock_url_obj.short_code
   assert mock_db_repo.get_by_short_code.call_count == 1
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 @pytest.mark.unit
 async def test_fetch_stats_short_url_not_found(mock_db_repo, url_service, mock_short_url):
   mock_db_repo.get_by_short_code.return_value = None

@@ -30,10 +30,11 @@ async def test_save(url_db_repo, create_url_obj):
   assert result.long_url == create_url_obj.long_url
   assert result.short_code == create_url_obj.short_code
 
-# @pytest.mark.integration
-# def test_increment_click(url_db_repo, db_session, saved_url_obj):
-#   url_db_repo.increment_click(saved_url_obj.short_code)
+@pytest.mark.anyio
+@pytest.mark.integration
+async def test_increment_click(url_db_repo, db_session, saved_url_obj):
+  await url_db_repo.increment_click(saved_url_obj.short_code)
 
-#   db_session.refresh(saved_url_obj)
+  await db_session.refresh(saved_url_obj)
 
-#   assert saved_url_obj.click_count == 1
+  assert saved_url_obj.click_count == 1
