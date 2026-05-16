@@ -10,15 +10,15 @@ router = APIRouter()
 
 @router.post("/shorten", response_model=ShortUrlResponse)
 @limiter.limit("10/minute")
-def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
-  url_obj = service.get_or_create(url)
+async def create_short_url(service: UrlDep, url: UrlCreate, request: Request):
+  url_obj = await service.get_or_create(url)
 
   return ShortUrlResponse(short_url=f"{str(request.base_url).rstrip('/')}/{url_obj.short_code}")
 
 @router.get("/{short_code}")
 @limiter.limit("100/minute")
-def fetch_long_url(service: UrlDep, short_code: str, background_tasks: BackgroundTasks, worker: UrlWorkerDep, request: Request):
-  url_obj = service.fetch_long_url(short_code)
+async def fetch_long_url(service: UrlDep, short_code: str, background_tasks: BackgroundTasks, worker: UrlWorkerDep, request: Request):
+  url_obj = await service.fetch_long_url(short_code)
 
   background_tasks.add_task(worker.increment_click, short_code)
 
@@ -26,7 +26,7 @@ def fetch_long_url(service: UrlDep, short_code: str, background_tasks: Backgroun
   
 @router.get("/stats/{short_url:path}", response_model=UrlStatsResponse)
 @limiter.limit("10/minute")
-def fetch_stats(service: UrlDep, short_url: str, request: Request):
-  url_obj = service.fetch_stats(short_url)
+async def fetch_stats(service: UrlDep, short_url: str, request: Request):
+  url_obj = await service.fetch_stats(short_url)
 
   return UrlStatsResponse(click_count=url_obj.click_count)
