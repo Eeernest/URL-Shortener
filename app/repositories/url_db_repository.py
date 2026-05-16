@@ -30,6 +30,6 @@ class UrlDbRepository:
 
       raise exc
 
-  # def increment_click(self, short_code: str):
-  #   self.session.execute(update(Url).where(Url.short_code == short_code).values(click_count=Url.click_count + 1).execution_options(synchronize_session=False))
-  #   self.session.commit()
+  async def increment_click(self, short_code: str):
+    await self.session.execute(update(Url).where(Url.short_code == short_code).values(click_count=Url.click_count + 1).execution_options(synchronize_session=False))
+    await self.session.commit()
