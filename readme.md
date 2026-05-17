@@ -117,7 +117,7 @@ pytest
   - fixtures/ pytest fixtures for test components
 
 ## Tech Stack
-- Python 3.12 (FastAPI)
+- Python 3.14 (FastAPI)
 - Frontend: HTML, CSS, JavaScript
 - Database: PostgreSQL, SQLAlchemy
 - Cache: Redis
