@@ -4,6 +4,10 @@ Simple REST API for shortening URLs, accessible via local server.
 
 ## Features
 
+### Asynchronous Code
+- Program is built with Python's 'async/await' syntax for non blocking database and cache operations
+- Utilizes asynchronous SQLAlchemy engine and Redis connection pool
+
 ### Short URL Generation
 - Shorten a long URL to a unique 6-character short URL
 - Collision resistance by implementing retry logic (up to 5 times)
