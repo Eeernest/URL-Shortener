@@ -82,7 +82,7 @@ FRONT_URL=http://localhost:8000
 4. Run the application using Docker Compose:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 5. Run tests locally:
