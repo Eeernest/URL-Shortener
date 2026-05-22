@@ -6,7 +6,7 @@ COPY pyproject.toml ./
 
 COPY app/ ./app/
 
-RUN python -m pip install --no-cache-dir .
+RUN python -m pip install --no-cache-dir ".[test]"
 
 COPY . .
 
